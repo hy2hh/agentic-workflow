@@ -1,0 +1,9 @@
+{
+  "name": "agentic-workflow",
+  "version": "0.1.0",
+  "description": "Enforce efficient sub-agent delegation, parallel execution, and context protection patterns in Claude Code",
+  "author": {
+    "name": "hangheejo"
+  },
+  "keywords": ["workflow", "agents", "delegation", "efficiency", "context-management"]
+}
