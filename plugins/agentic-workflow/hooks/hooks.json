@@ -1,24 +1,38 @@
 {
-  "PostToolUse": [
-    {
-      "matcher": "Task",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "bash $CLAUDE_PLUGIN_ROOT/hooks/scripts/collect-metrics.sh",
-          "timeout": 5
-        }
-      ]
-    },
-    {
-      "matcher": "TeamCreate",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "bash $CLAUDE_PLUGIN_ROOT/hooks/scripts/collect-metrics.sh",
-          "timeout": 5
-        }
-      ]
-    }
-  ]
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $CLAUDE_PLUGIN_ROOT/hooks/scripts/pre-commit-verify.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $CLAUDE_PLUGIN_ROOT/hooks/scripts/collect-metrics.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "TeamCreate",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $CLAUDE_PLUGIN_ROOT/hooks/scripts/collect-metrics.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
 }

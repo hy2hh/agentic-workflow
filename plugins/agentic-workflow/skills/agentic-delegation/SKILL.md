@@ -208,6 +208,30 @@ Use the right agent type for each task. Don't do specialized work in the main co
 - Single grep/glob lookups
 - Quick status checks
 
+## Rule 6: Review Result Handling
+
+When sub-agents return code review findings, apply this triage automatically — **do not pause for user approval between review and fix**:
+
+| Severity | Action |
+|----------|--------|
+| CRITICAL | Fix immediately, no approval needed |
+| HIGH | Fix immediately, no approval needed |
+| MEDIUM | Fix if safe and isolated, otherwise report |
+| LOW / INFO | Save to report file, summarize only |
+
+**Prohibited**: Showing review results and waiting for "should I fix these?" confirmation. CRITICAL and HIGH issues are always fixed.
+
+## Rule 7: Avoid Team Agent Overhead for Reviews
+
+Code reviews are **one-shot parallel work** — use sub-agents (Agent tool), NOT TeamCreate.
+
+TeamCreate is only justified when:
+- Agents need to DM each other mid-task
+- Work continues across multiple back-and-forth rounds
+- 6+ independent tasks requiring TaskList tracking
+
+A parallel review of 3-5 file groups does NOT meet this threshold. Sub-agents in a single message block are sufficient and avoid team initialization overhead.
+
 ## Anti-Patterns to Avoid
 
 1. **The Hoarder**: Loading all sub-agent results into context "just in case"
@@ -215,6 +239,8 @@ Use the right agent type for each task. Don't do specialized work in the main co
 3. **The Amnesiac**: Keeping results only in context, losing them when session ends
 4. **The Micromanager**: Doing sub-agent-level work in the main context
 5. **The Duplicator**: Doing the same research a sub-agent is already doing
+6. **The Gatekeeper**: Pausing after review to ask approval before fixing CRITICAL/HIGH issues
+7. **The Over-Teamer**: Using TeamCreate for one-shot parallel work that sub-agents handle fine
 
 ## Metrics Collection
 
