@@ -44,6 +44,75 @@ description: |
 
 You MUST follow these rules whenever you use the Task tool, spawn sub-agents, or handle complex multi-step work. These rules protect context efficiency, ensure result persistence, and maximize parallel throughput.
 
+## Rule 0: Agent Architecture Selection
+
+**이 판단은 반드시 메인 세션이 직접 내려야 한다.**
+서브에이전트(delegation-orchestrator 포함)에게 위임하면 안 된다.
+팀 에이전트는 메인 세션이 살아있어야 리더로서 조율할 수 있기 때문이다.
+
+### 판단 기준
+
+**서브에이전트 (Agent tool) 선택 시그널:**
+- 요구사항이 명확하고 고정됨 (작업 중 방향 변경 없음)
+- 한 번 실행하면 결과 받고 완료 (1회성)
+- 단발성 리서치, 탐색, 분석
+- 명확한 선형 파이프라인 (A → B → C)
+- 독립 병렬 작업 5개 이하
+
+**팀 에이전트 (TeamCreate) 선택 시그널:**
+- 작업 도중 방향 변경 또는 스펙 협의 가능성 있음
+- 팀원 간 중간 피드백 루프 필요 (리뷰 → 수정 → 재리뷰)
+- 장기 병렬 개발 (예: 프론트엔드 + 백엔드 동시 진행)
+- 독립 작업이 6개 이상이며 TaskList로 추적이 필요
+- 각 에이전트가 서로의 결과를 참조하며 작업 진행
+
+### 빠른 판단 테스트
+
+```
+Q1: 작업 중 방향이 바뀔 수 있나?
+  NO  → 서브에이전트
+  YES → 팀 에이전트
+
+Q2: 에이전트끼리 서로 협의해야 하나? (DM 필요)
+  NO  → 서브에이전트
+  YES → 팀 에이전트
+
+Q3: 독립 작업이 6개 이상인가?
+  NO  → 서브에이전트 (병렬 발사)
+  YES → 팀 에이전트 (TaskList 관리)
+```
+
+### 선택에 따른 메인 세션 행동
+
+```
+서브에이전트 선택 시:
+  메인 세션 → delegation-orchestrator 스폰 (Agent tool)
+  → 오케스트레이터가 내부적으로 분해/병렬 실행
+  → 요약 받고 유저에게 전달
+
+팀 에이전트 선택 시:
+  메인 세션이 직접 TeamCreate
+  → 메인 세션이 팀 리더로서 TaskCreate, 팀원 스폰, 작업 할당
+  → 팀원 메시지 수신·조율 (SendMessage)
+  → 완료 후 팀 정리 (TeamDelete)
+```
+
+### 아키텍처별 패턴
+
+| 상황 | 선택 | 이유 |
+|------|------|------|
+| 병렬 리서치 (3개 주제) | 서브에이전트 | 단발성, 명확한 출력 |
+| PR 코드 리뷰 | 서브에이전트 | 파일 그룹별 병렬, 1회성 |
+| 버그 분석 → 수정 → 테스트 | 서브에이전트 | 선형 파이프라인 |
+| 프론트+백엔드 동시 개발 | 팀 에이전트 | 장기, 중간 협의 가능성 |
+| 10개 파일 리팩토링 | 팀 에이전트 | 작업량 많고 TaskList 필요 |
+| 설계 → 구현 → 리뷰 반복 | 팀 에이전트 | 피드백 루프 존재 |
+
+### 서브에이전트 최소 오버헤드 원칙
+
+서브에이전트가 적합한 경우 TeamCreate를 사용하지 마라.
+팀 초기화, 메시지 라우팅, 상태 관리 비용이 불필요하게 발생한다.
+
 ## Rule 1: Context Protection
 
 NEVER load full sub-agent results into the main conversation context.

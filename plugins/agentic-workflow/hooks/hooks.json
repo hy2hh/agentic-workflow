@@ -9,6 +9,16 @@
           "timeout": 5
         }
       ]
+    },
+    {
+      "matcher": "TeamCreate",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "bash $CLAUDE_PLUGIN_ROOT/hooks/scripts/collect-metrics.sh",
+          "timeout": 5
+        }
+      ]
     }
   ]
 }

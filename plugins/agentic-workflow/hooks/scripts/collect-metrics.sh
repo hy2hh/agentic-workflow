@@ -11,8 +11,8 @@ INPUT=$(cat)
 # Extract tool name from the hook context
 TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // "unknown"' 2>/dev/null || echo "unknown")
 
-# Only process Task tool results
-if [ "$TOOL_NAME" != "Task" ]; then
+# Only process Task and TeamCreate tool results
+if [ "$TOOL_NAME" != "Task" ] && [ "$TOOL_NAME" != "TeamCreate" ]; then
   exit 0
 fi
 
@@ -20,6 +20,12 @@ fi
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 TOOL_INPUT=$(echo "$INPUT" | jq -r '.tool_input // "{}"' 2>/dev/null || echo "{}")
 TOOL_OUTPUT=$(echo "$INPUT" | jq -r '.tool_output // ""' 2>/dev/null || echo "")
+
+# Determine architecture mode: team or sub-agent
+ARCHITECTURE_MODE="sub_agent"
+if [ "$TOOL_NAME" = "TeamCreate" ]; then
+  ARCHITECTURE_MODE="team"
+fi
 
 # Detect if result mentions file saving
 SAVED_TO_FILE=false
@@ -36,11 +42,14 @@ if echo "$TOOL_INPUT" | jq -e '.run_in_background == true' >/dev/null 2>&1; then
   RAN_IN_BACKGROUND=true
 fi
 
-# Extract agent type
+# Extract agent type (sub-agent only; team uses team_name)
 AGENT_TYPE=$(echo "$TOOL_INPUT" | jq -r '.subagent_type // "unknown"' 2>/dev/null || echo "unknown")
+if [ "$ARCHITECTURE_MODE" = "team" ]; then
+  AGENT_TYPE="team"
+fi
 
-# Extract description
-DESCRIPTION=$(echo "$TOOL_INPUT" | jq -r '.description // ""' 2>/dev/null || echo "")
+# Extract description or team name
+DESCRIPTION=$(echo "$TOOL_INPUT" | jq -r '.description // .team_name // ""' 2>/dev/null || echo "")
 
 # Determine metrics file location
 METRICS_DIR=".claude"
@@ -55,6 +64,7 @@ OUTPUT_LENGTH=${#TOOL_OUTPUT}
 # Append metric entry
 jq -n \
   --arg ts "$TIMESTAMP" \
+  --arg architecture_mode "$ARCHITECTURE_MODE" \
   --arg agent_type "$AGENT_TYPE" \
   --arg description "$DESCRIPTION" \
   --argjson saved_to_file "$SAVED_TO_FILE" \
@@ -63,6 +73,7 @@ jq -n \
   '{
     timestamp: $ts,
     event: "task_completion",
+    architecture_mode: $architecture_mode,
     agent_type: $agent_type,
     description: $description,
     saved_to_file: $saved_to_file,
