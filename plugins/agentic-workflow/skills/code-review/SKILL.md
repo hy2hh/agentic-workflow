@@ -52,7 +52,7 @@ Each reviewer sub-agent must:
 - Save full findings to `docs/review-{group}-{date}.md`
 - Return only a severity-count summary
 
-**Use `subagent_type: general-purpose`. Do NOT use TeamCreate.**
+**Use the Agent tool with `subagent_type: "general-purpose"`. Do NOT use TeamCreate.**
 
 ### Phase 3 — Triage & Fix
 
@@ -75,6 +75,8 @@ After fixes:
 Create a single commit with a message that lists all fixes applied.
 Format: `fix: <summary of changes> (auto-review: N critical, M high fixed)`
 
+**Do NOT auto-push.** Ask the user before pushing.
+
 ## Output to User
 
 ```
@@ -83,7 +85,7 @@ Review complete.
 - Findings: X critical, Y high, Z medium, W low
 - Auto-fixed: X critical + Y high issues
 - Report: docs/review-{date}.md
-- Commit: <hash> pushed
+- Commit: <hash>
 ```
 
 ## Rules

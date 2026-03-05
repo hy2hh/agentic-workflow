@@ -70,13 +70,16 @@ pnpm install   # or npm install / yarn install as appropriate
 > rebase target (origin), and `--theirs` refers to the local branch being
 > replayed. This is the **opposite** of a regular merge.
 
-### Code Files (non-lock)
+### Code Files (non-lock, simple conflicts)
 ```bash
 # Keep local changes — local branch is --theirs during rebase
 git checkout --theirs <file>
 git add <file>
 git rebase --continue
 ```
+
+> Only use this for trivial conflicts (e.g., import ordering, formatting).
+> If origin made meaningful logic changes in the same area, treat as a **Logic Conflict** below.
 
 ### Logic Conflicts (both sides modified the same logic)
 - **Do NOT auto-resolve.** Stop and report to user with:
@@ -100,5 +103,6 @@ git rebase --continue
 - **ALWAYS confirm push success** before reporting done (show `git log` or `git status`)
 - **NEVER use `git add -A`** without checking `git status` first
 - **NEVER force push** to `main` without explicit user instruction
+- **Prefer `--force-with-lease`** over `--force` when force push is needed (prevents overwriting others' work)
 - If push is rejected (non-fast-forward): rebase and retry, do not stop
 - If rebase has conflicts: resolve per rules above and continue, do not stop

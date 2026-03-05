@@ -221,32 +221,10 @@ When sub-agents return code review findings, apply this triage automatically —
 
 **Prohibited**: Showing review results and waiting for "should I fix these?" confirmation. CRITICAL and HIGH issues are always fixed.
 
-## Rule 7: Avoid Team Agent Overhead for Reviews
-
-Code reviews are **one-shot parallel work** — use sub-agents (Agent tool), NOT TeamCreate.
-
-TeamCreate is only justified when:
-- Agents need to DM each other mid-task
-- Work continues across multiple back-and-forth rounds
-- 6+ independent tasks requiring TaskList tracking
-
-A parallel review of 3-5 file groups does NOT meet this threshold. Sub-agents in a single message block are sufficient and avoid team initialization overhead.
-
-## Anti-Patterns to Avoid
+## Anti-Patterns
 
 1. **The Hoarder**: Loading all sub-agent results into context "just in case"
-2. **The Serializer**: Running independent tasks one at a time
+2. **The Serializer**: Running independent tasks one at a time when they could be parallel
 3. **The Amnesiac**: Keeping results only in context, losing them when session ends
-4. **The Micromanager**: Doing sub-agent-level work in the main context
-5. **The Duplicator**: Doing the same research a sub-agent is already doing
-6. **The Gatekeeper**: Pausing after review to ask approval before fixing CRITICAL/HIGH issues
-7. **The Over-Teamer**: Using TeamCreate for one-shot parallel work that sub-agents handle fine
-
-## Metrics Collection
-
-This plugin collects workflow efficiency metrics to `.claude/agentic-metrics.jsonl`. Metrics include:
-- Whether sub-agent results were saved to files
-- Parallel vs sequential execution patterns
-- Delegation frequency
-
-These metrics enable data-driven improvement of delegation patterns over time.
+4. **The Gatekeeper**: Pausing after review to ask approval before fixing CRITICAL/HIGH issues
+5. **The Over-Teamer**: Using TeamCreate for one-shot parallel work (see Rule 0)

@@ -141,8 +141,6 @@ refactor: <what was done> (batch-task #N)
 
 - Brief description of changes
 - Files affected
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 ```
 
 ## Sub-Agent Delegation
